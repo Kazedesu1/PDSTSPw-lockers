@@ -9,6 +9,7 @@ struct Drones {
     double total_time = 0;
     std::vector<int> route;
     std::vector<int> Customersroute;
+    double Dronecost = 0;
     Drones() : total_time(0), Customersroute() , route() {}
 };
 
@@ -17,7 +18,7 @@ public:
     Solver(const Instance& instance);
     void solve();
     void displaySolution() const;
-
+    double Truckcost = 0;
     const Instance& instance;
     std::vector<Drones> drones;
     std::vector<int> truckCustomersRoute = { -1, -1 };

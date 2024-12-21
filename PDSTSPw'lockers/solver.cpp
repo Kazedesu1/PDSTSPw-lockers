@@ -39,14 +39,16 @@ void Solver::solve() {
         int bestDroneNode = -1;
         double minDroneCost = numeric_limits<double>::infinity();
 
+
         for (int i = 0; i < drones.size(); ++i) {
             for (int cluster : remainingCustomers) {
                 if (find(instance.Cf.begin(), instance.Cf.end(), cluster) != instance.Cf.end()) {
                     for (int j = 0; j < instance.clusters[cluster].nodes.size(); ++j) {
                         //rang buoc khoang cach bay
-                        if (instance.nodes[instance.clusters[cluster].nodes[j]].chargeStation == 1 ||
-                            instance.nodes[instance.clusters[cluster].nodes[j]].euclidDist > instance.max_fly_distance / 2) {
-                            double droneCost = instance.Cdrone[instance.clusters[cluster].nodes[j]];
+                        if ((instance.nodes[instance.clusters[cluster].nodes[j]].chargeStation == 1
+                            && instance.nodes[instance.clusters[cluster].nodes[j]].euclidDist > instance.max_fly_distance / 2 )||
+                            instance.nodes[instance.clusters[cluster].nodes[j]].euclidDist <= instance.max_fly_distance / 2) {
+                            double droneCost = instance.Cdrone[instance.clusters[cluster].nodes[j]] + instance.clusters[cluster].discounts[j]*instance.discount_cost_factor;
                             if (droneCost < minDroneCost &&
                                 drones[i].total_time + instance.Tdrone[instance.clusters[cluster].nodes[j]] <= instance.max_working_time) {
                                 bestDroneCustomer = cluster;
@@ -65,11 +67,13 @@ void Solver::solve() {
             drones[bestDrone].route.push_back(bestDroneNode);
             drones[bestDrone].Customersroute.push_back(bestDroneCustomer);
             drones[bestDrone].total_time += instance.Tdrone[bestDroneNode];
+            drones[bestDrone].Dronecost += minDroneCost;
             remainingCustomers.erase(remove(remainingCustomers.begin(), remainingCustomers.end(), bestDroneCustomer), remainingCustomers.end());
         }
         else if (bestTruckNode != -1) {
             truckRoute.insert(truckRoute.begin() + bestTruckPos, bestTruckNode);
             truckCustomersRoute.insert(truckCustomersRoute.begin() + bestTruckPos, bestTruckCustomer);
+            Truckcost += minTruckCostIncrease;
             remainingCustomers.erase(remove(remainingCustomers.begin(), remainingCustomers.end(), bestTruckCustomer), remainingCustomers.end());
         }
     }
@@ -121,12 +125,12 @@ void Solver::displaySolution() const {
     for (int node : truckCustomersRoute) {
         cout << node << " ";
     }*/
-    double truckCost = tinhCostTruck(truckRoute, instance.Ctruck);
+    double truckCost = Truckcost;
     totalCost += truckCost;
     cout << "\tTotal Truck Cost: " << truckCost << "\n";
 
     for (int i = 0; i < drones.size(); ++i) {
-        double droneCost = tinhCostDrone(drones[i].route, instance.Cdrone);
+        double droneCost = drones[i].Dronecost;
         totalCost += droneCost;
         cout << "Drone " << i << "\tTime: " << drones[i].total_time << "\tRoute: ";
         for (int node : drones[i].route) {

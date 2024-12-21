@@ -5,10 +5,7 @@ using namespace std;
 
 int main() {
     Instance instance;
-    if (!instance.loadFromFile("1.txt")) {
-        cerr << "Failed to load data.\n";
-        return 1;
-    }
+    instance.loadFromFile("16.txt");
     //instance.displayData();
     Solver solver(instance);
     solver.solve();

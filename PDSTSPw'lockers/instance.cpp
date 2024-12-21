@@ -190,7 +190,7 @@ void Instance::displayData() const {
     for (const auto& node : nodes) {
         cout << "Node ID: " << node.nodeID
             << ", Capacity: " << node.capacity
-            << ", Charge Station: " << (node.chargeStation ? "Yes" : "No")
+            << ", Charge Station: " << node.chargeStation 
             << ", Euclidean Distance: " << node.euclidDist << "\n";
     }
 
